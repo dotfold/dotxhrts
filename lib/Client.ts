@@ -7,20 +7,12 @@
 
 //import rx = require('rx');
 
-module Client
-{
-
-    export enum HTTPMethod { GET, POST, DELETE }
+//module Client
+//{
 
     export class Client
     {
-
-        baseUrl : string;
-
-        constructor (public url)
-        {
-            this.baseUrl = url;
-        }
+        constructor (public baseUrl:string) {}
 
         enqueueRequest(method:HTTPMethod) : Rx.Observable<any>
         {
@@ -44,8 +36,10 @@ module Client
         private createRequest(resource):XMLHttpRequest
         {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', resource, true);
+            xhr.open('GET', this.baseUrl + resource, true);
             return xhr;
         }
     }
-}
+
+    export enum HTTPMethod { GET, POST, DELETE };
+//}
