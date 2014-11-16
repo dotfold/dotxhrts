@@ -5,41 +5,35 @@
 ///<reference path="./../typings/rx/rx.d.ts" />
 ///<reference path="./../typings/rx/rx.async.d.ts" />
 
-//import rx = require('rx');
+export enum HTTPMethod { GET, POST, DELETE }
 
-//module Client
-//{
+export class Client
+{
+    constructor (public baseUrl:string) {}
 
-    export class Client
+    enqueueRequest(method:HTTPMethod) : Rx.Observable<any>
     {
-        constructor (public baseUrl:string) {}
 
-        enqueueRequest(method:HTTPMethod) : Rx.Observable<any>
-        {
+        var req:any = this.createRequest('session');
+        var error = Rx.Observable.fromEvent(req, 'error');
+        var done = Rx.Observable.fromEvent(req, 'load');
 
-            var req:any = this.createRequest('session');
-            var error = Rx.Observable.fromEvent(req, 'error');
-            var done = Rx.Observable.fromEvent(req, 'load');
+        return Rx.Observable.create(observer=> {
 
-            return Rx.Observable.create(observer=> {
+            error.subscribe((err) => { observer.onError(err) });
 
-                error.subscribe((err) => { observer.onError(err) });
-
-                done.subscribe((res) => {
-                    console.log('doned');
-                    observer.onNext(res);
-                    observer.onCompleted();
-                })
-            });
-        }
-
-        private createRequest(resource):XMLHttpRequest
-        {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', this.baseUrl + resource, true);
-            return xhr;
-        }
+            done.subscribe((res) => {
+                console.log('doned');
+                observer.onNext(res);
+                observer.onCompleted();
+            })
+        });
     }
 
-    export enum HTTPMethod { GET, POST, DELETE };
-//}
+    private createRequest(resource):XMLHttpRequest
+    {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', this.baseUrl + resource, true);
+        return xhr;
+    }
+}
